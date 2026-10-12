@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="WealthFlow">
+  <meta name="theme-color" content="#0b0f19">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%232563eb'/><text x='50' y='64' font-size='50' text-anchor='middle' fill='white'>💎</text></svg>">
+  <title>WealthFlow — Smart Expense Manager & Wealth Builder</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --card-border: #1f293d;
+      --card-hover: #162035;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --accent: #3b82f6;
+      --accent-glow: rgba(59, 130, 246, 0.25);
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font); -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+    header { background: rgba(17, 24, 39, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--card-border); position: sticky; top: 0; z-index: 50; padding: 0.9rem 1.25rem; }
+    .nav-container { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; }
+    .brand { display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 1.2rem; color: #fff; text-decoration: none; }
+    .brand-badge { background: linear-gradient(135deg, #2563eb, #7c3aed); color: white; font-size: 0.65rem; padding: 0.15rem 0.5rem; border-radius: 999px; font-weight: 800; }
+    .header-actions { display: flex; align-items: center; gap: 0.4rem; }
+    .btn-sm { background: #1e293b; color: #e2e8f0; border: 1px solid #334155; padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.78rem; cursor: pointer; }
+    main { flex: 1; max-width: 1100px; width: 100%; margin: 0 auto; padding: 1.25rem; padding-bottom: calc(5rem + env(safe-area-inset-bottom)); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.9rem; margin-bottom: 1.25rem; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.1rem; margin-bottom: 1.25rem; }
+    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 1.15rem; }
+    .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.35rem; display: flex; justify-content: space-between; }
+    .stat-value { font-size: 1.65rem; font-weight: 700; color: #fff; }
+    .stat-sub { font-size: 0.78rem; margin-top: 0.35rem; color: var(--text-muted); }
+    .quick-entry { background: linear-gradient(145deg, #131c31, #0f172a); border: 1px solid #1e3a8a; border-radius: 14px; padding: 1.15rem; margin-bottom: 1.25rem; }
+    .quick-presets { display: flex; gap: 0.45rem; overflow-x: auto; padding-bottom: 0.5rem; margin-bottom: 0.85rem; }
+    .preset-chip { background: #1e293b; border: 1px solid #334155; color: #cbd5e1; padding: 0.35rem 0.7rem; border-radius: 999px; font-size: 0.75rem; cursor: pointer; white-space: nowrap; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.6rem; align-items: end; }
+    input, select { background: #090d16; border: 1px solid #2d3748; color: #fff; padding: 0.65rem; border-radius: 8px; font-size: 16px; width: 100%; outline: none; }
+    .btn-primary { background: linear-gradient(135deg, #2563eb, #1d4ed8); color: white; border: none; padding: 0.65rem 1rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; height: 42px; width: 100%; }
+    .table-container { overflow-x: auto; border-radius: 8px; border: 1px solid var(--card-border); max-height: 280px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    th { background: #0f172a; color: var(--text-muted); padding: 0.65rem 0.85rem; text-align: left; }
+    td { padding: 0.65rem 0.85rem; border-bottom: 1px solid #1a2234; color: #e2e8f0; }
+    .badge { padding: 0.18rem 0.5rem; border-radius: 999px; font-size: 0.7rem; font-weight: 600; }
+    .badge-need { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .badge-want { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+    .badge-saving { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+    .ios-bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(20px); border-top: 1px solid var(--card-border); z-index: 99; padding-bottom: env(safe-area-inset-bottom); }
+    .ios-tab-grid { display: grid; grid-template-columns: repeat(4, 1fr); height: 56px; }
+    .ios-tab-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; color: var(--text-muted); background: none; border: none; font-size: 0.72rem; cursor: pointer; }
+    .ios-tab-item.active { color: var(--accent); font-weight: 700; }
+    .progress-track { background: #1e293b; border-radius: 999px; height: 9px; width: 100%; margin: 0.4rem 0; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 999px; transition: width 0.3s; }
+    .toast { position: fixed; bottom: 70px; right: 20px; background: #1e293b; color: #fff; border-left: 4px solid var(--accent); padding: 0.75rem 1.1rem; border-radius: 6px; display: none; z-index: 100; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-container">
+      <div class="brand"><span>💎 WealthFlow</span><span class="brand-badge">PRO</span></div>
+      <div class="header-actions">
+        <button class="btn-sm" onclick="exportDataCSV()">Export CSV</button>
+        <button class="btn-sm" onclick="promptSettings()">⚙️ Income</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Direct Quick Logger -->
+    <div class="quick-entry">
+      <div class="quick-presets">
+        <span class="preset-chip" onclick="applyPreset(4.75, 'Food & Dining', 'Coffee', 'want')">☕ Coffee $4.75</span>
+        <span class="preset-chip" onclick="applyPreset(16.50, 'Food & Dining', 'Lunch', 'want')">🥗 Lunch $16.50</span>
+        <span class="preset-chip" onclick="applyPreset(78.00, 'Groceries', 'Groceries', 'need')">🛒 Groceries $78</span>
+        <span class="preset-chip" onclick="applyPreset(45.00, 'Transportation', 'Gas', 'need')">⛽ Gas $45</span>
+        <span class="preset-chip" onclick="applyPreset(14.99, 'Subscriptions', 'Streaming', 'want')">📱 Sub $14.99</span>
+        <span class="preset-chip" onclick="applyPreset(150.00, 'Savings & Investments', 'Index Fund', 'saving')">📈 Invest $150</span>
+      </div>
+      <form onsubmit="handleFormSubmit(event)">
+        <div class="form-grid">
+          <div><label style="font-size:0.75rem; color:var(--text-muted)">Amount ($)</label><input type="number" id="expAmount" step="0.01" placeholder="0.00" required></div>
+          <div><label style="font-size:0.75rem; color:var(--text-muted)">Merchant / Note</label><input type="text" id="expDesc" placeholder="e.g. Target, Uber" required></div>
+          <div><label style="font-size:0.75rem; color:var(--text-muted)">Category</label>
+            <select id="expCategory">
+              <option value="Food & Dining">Food & Dining</option><option value="Groceries">Groceries</option>
+              <option value="Housing & Rent">Housing & Rent</option><option value="Transportation">Transportation</option>
+              <option value="Subscriptions">Subscriptions</option><option value="Shopping">Shopping</option>
+              <option value="Savings & Investments">Savings & Investments</option><option value="Miscellaneous">Miscellaneous</option>
+            </select>
+          </div>
+          <div><label style="font-size:0.75rem; color:var(--text-muted)">Type</label>
+            <select id="expType">
+              <option value="want">Want (Lifestyle)</option><option value="need">Need (Essential)</option><option value="saving">Saving/Invest</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-primary">+ Log Spend</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- TAB 1: OVERVIEW -->
+    <div id="tab-dashboard" class="tab-content active">
+      <div class="grid-4">
+        <div class="card"><div class="stat-label">Total Outflow <span>💳</span></div><div class="stat-value" id="stat-total">$0</div><div class="stat-sub">Burn Rate: <b id="stat-burn">$0/day</b></div></div>
+        <div class="card"><div class="stat-label">Net Savings <span>💰</span></div><div class="stat-value" id="stat-savings" style="color:#34d399;">$0</div><div class="stat-sub">Rate: <b id="stat-savings-rate">0%</b></div></div>
+        <div class="card"><div class="stat-label">Needs / Wants <span>⚖️</span></div><div class="stat-value" id="stat-ratio" style="font-size:1.35rem;">0% / 0%</div><div class="stat-sub">Benchmark: 50% / 30%</div></div>
+        <div class="card"><div class="stat-label">Safety Runway <span>🛡️</span></div><div class="stat-value" id="stat-runway" style="color:#60a5fa;">0.0 mo</div><div class="stat-sub">Emergency Buffer</div></div>
+      </div>
+      <div class="card">
+        <h3 style="font-size:0.95rem; margin-bottom:0.75rem;">Recent Transactions</h3>
+        <div class="table-container"><table><thead><tr><th>Date</th><th>Note</th><th>Cat</th><th>Amt</th><th></th></tr></thead><tbody id="recentList"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- TAB 2: HISTORY -->
+    <div id="tab-expenses" class="tab-content">
+      <div class="card">
+        <h3 style="font-size:0.95rem; margin-bottom:0.75rem;">All Recorded Transactions</h3>
+        <div class="table-container" style="max-height:420px;"><table><thead><tr><th>Date</th><th>Note</th><th>Cat</th><th>Type</th><th>Amt</th><th></th></tr></thead><tbody id="fullList"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- TAB 3: INSIGHTS -->
+    <div id="tab-insights" class="tab-content">
+      <div class="grid-2">
+        <div class="card">
+          <h3 style="font-size:1rem; margin-bottom:0.8rem;">📐 50 / 30 / 20 Budget Health</h3>
+          <div style="margin-bottom:0.8rem;"><div style="display:flex; justify-content:space-between; font-size:0.82rem;"><span>Needs (Goal: 50%)</span><span id="pNeedText">0%</span></div><div class="progress-track"><div id="pNeedBar" class="progress-fill" style="background:#3b82f6; width:0%"></div></div></div>
+          <div style="margin-bottom:0.8rem;"><div style="display:flex; justify-content:space-between; font-size:0.82rem;"><span>Wants (Goal: 30%)</span><span id="pWantText">0%</span></div><div class="progress-track"><div id="pWantBar" class="progress-fill" style="background:#f59e0b; width:0%"></div></div></div>
+          <div style="margin-bottom:0.8rem;"><div style="display:flex; justify-content:space-between; font-size:0.82rem;"><span>Savings (Goal: 20%)</span><span id="pSavText">0%</span></div><div class="progress-track"><div id="pSavBar" class="progress-fill" style="background:#10b981; width:0%"></div></div></div>
+          <p id="diagText" style="font-size:0.82rem; color:#93c5fd; margin-top:0.8rem; background:rgba(59,130,246,0.1); padding:0.6rem; border-radius:6px;"></p>
+        </div>
+        <div class="card">
+          <h3 style="font-size:1rem; margin-bottom:0.8rem;">🕳️ Spending Leaks Audit</h3>
+          <div id="leaksBox" style="font-size:0.84rem; line-height:1.6; color:#cbd5e1;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: WEALTH ENGINE -->
+    <div id="tab-wealth" class="tab-content">
+      <div class="card" style="background:linear-gradient(135deg, #1e1b4b, #172554); border-color:#3b82f6; margin-bottom:1.2rem;">
+        <h2 style="font-size:1.3rem; margin-bottom:0.3rem;">Compound Wealth Engine 🚀</h2>
+        <p style="font-size:0.85rem; color:#cbd5e1; margin-bottom:1rem;">Redirect trimmed daily splurges into low-cost index funds to build financial freedom.</p>
+        <div style="font-size:0.85rem; line-height:1.8;">
+          <div>• <b>In 10 Years:</b> <span id="w10" style="color:#60a5fa; font-weight:700;">$0</span></div>
+          <div>• <b>In 20 Years:</b> <span id="w20" style="color:#a78bfa; font-weight:700;">$0</span></div>
+          <div>• <b>In 30 Years:</b> <span id="w30" style="color:#fbbf24; font-weight:700;">$0</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3 style="font-size:0.95rem; margin-bottom:0.5rem;">Interactive Simulator ($/month redirect):</h3>
+        <input type="range" id="simSlider" min="50" max="1500" step="25" value="250" oninput="updateSim()" style="width:100%;">
+        <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-top:0.4rem;">
+          <span>Monthly Redirect: <b id="sliderVal">$250/mo</b></span>
+          <span style="color:#34d399;">8% Annual ROI</span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <nav class="ios-bottom-bar">
+    <div class="ios-tab-grid">
+      <button class="ios-tab-item active" onclick="navTab('dashboard')"><span style="font-size:1.15rem;">📊</span><span>Overview</span></button>
+      <button class="ios-tab-item" onclick="navTab('expenses')"><span style="font-size:1.15rem;">📝</span><span>History</span></button>
+      <button class="ios-tab-item" onclick="navTab('insights')"><span style="font-size:1.15rem;">💡</span><span>Insights</span></button>
+      <button class="ios-tab-item" onclick="navTab('wealth')"><span style="font-size:1.15rem;">🚀</span><span>Wealth</span></button>
+    </div>
+  </nav>
+
+  <div id="toast" class="toast">Expense logged!</div>
+
+  <script>
+    let expenses = JSON.parse(localStorage.getItem('wf_exp') || '[]');
+    let income = parseFloat(localStorage.getItem('wf_inc') || '3500');
+    let buffer = parseFloat(localStorage.getItem('wf_buf') || '2500');
+
+    if (expenses.length === 0) {
+      expenses = [
+        { id: 1, date: new Date().toISOString().split('T')[0], amount: 1200, category: 'Housing & Rent', desc: 'Rent', type: 'need' },
+        { id: 2, date: new Date().toISOString().split('T')[0], amount: 65, category: 'Groceries', desc: 'Weekly Supermarket', type: 'need' },
+        { id: 3, date: new Date().toISOString().split('T')[0], amount: 16.50, category: 'Food & Dining', desc: 'Lunch Burrito', type: 'want' },
+        { id: 4, date: new Date().toISOString().split('T')[0], amount: 14.99, category: 'Subscriptions', desc: 'Netflix', type: 'want' },
+        { id: 5, date: new Date().toISOString().split('T')[0], amount: 150, category: 'Savings & Investments', desc: 'Index Fund', type: 'saving' }
+      ];
+      saveData();
+    }
+
+    function saveData() {
+      localStorage.setItem('wf_exp', JSON.stringify(expenses));
+      localStorage.setItem('wf_inc', income);
+      localStorage.setItem('wf_buf', buffer);
+    }
+
+    function navTab(id) {
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.ios-tab-item').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab-' + id).classList.add('active');
+      event.currentTarget.classList.add('active');
+      if (id === 'wealth') updateSim();
+    }
+
+    function applyPreset(amt, cat, desc, type) {
+      document.getElementById('expAmount').value = amt.toFixed(2);
+      document.getElementById('expCategory').value = cat;
+      document.getElementById('expDesc').value = desc;
+      document.getElementById('expType').value = type;
+    }
+
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const amt = parseFloat(document.getElementById('expAmount').value);
+      if (!amt || amt <= 0) return;
+      expenses.unshift({
+        id: Date.now(),
+        date: new Date().toISOString().split('T')[0],
+        amount: amt,
+        category: document.getElementById('expCategory').value,
+        desc: document.getElementById('expDesc').value || 'Expense',
+        type: document.getElementById('expType').value
+      });
+      saveData();
+      document.getElementById('expAmount').value = '';
+      document.getElementById('expDesc').value = '';
+      showToast("Logged: $" + amt.toFixed(2));
+      render();
+    }
+
+    function deleteItem(id) {
+      expenses = expenses.filter(x => x.id !== id);
+      saveData();
+      render();
+    }
+
+    function render() {
+      const total = expenses.reduce((s, x) => s + x.amount, 0);
+      const needs = expenses.filter(x => x.type === 'need').reduce((s, x) => s + x.amount, 0);
+      const wants = expenses.filter(x => x.type === 'want').reduce((s, x) => s + x.amount, 0);
+      const netSavings = Math.max(0, income - (needs + wants));
+      const rate = income > 0 ? (netSavings / income * 100) : 0;
+      const runway = (needs + wants) > 0 ? (buffer / (needs + wants)) : 0;
+
+      document.getElementById('stat-total').textContent = '$' + total.toFixed(2);
+      document.getElementById('stat-burn').textContent = '$' + (total / Math.max(1, new Date().getDate())).toFixed(2) + '/day';
+      document.getElementById('stat-savings').textContent = '$' + netSavings.toFixed(2);
+      document.getElementById('stat-savings-rate').textContent = rate.toFixed(1) + '%';
+      document.getElementById('stat-ratio').textContent = Math.round(needs/income*100) + '% / ' + Math.round(wants/income*100) + '%';
+      document.getElementById('stat-runway').textContent = runway.toFixed(1) + ' mo';
+
+      const nPct = Math.round(needs/income*100), wPct = Math.round(wants/income*100), sPct = Math.round(netSavings/income*100);
+      document.getElementById('pNeedText').textContent = nPct + '% ($' + Math.round(needs) + ')';
+      document.getElementById('pNeedBar').style.width = Math.min(100, nPct) + '%';
+      document.getElementById('pWantText').textContent = wPct + '% ($' + Math.round(wants) + ')';
+      document.getElementById('pWantBar').style.width = Math.min(100, wPct) + '%';
+      document.getElementById('pSavText').textContent = sPct + '% ($' + Math.round(netSavings) + ')';
+      document.getElementById('pSavBar').style.width = Math.min(100, sPct) + '%';
+
+      document.getElementById('diagText').textContent = wPct > 35 ? '⚠️ Wants are taking up ' + wPct + '% of income (above 30% guideline). Trimming small splurges will accelerate savings!' : '✅ Spending is well-balanced within guidelines.';
+
+      const subAmt = expenses.filter(x => x.category === 'Subscriptions').reduce((s, x) => s + x.amount, 0);
+      const diningAmt = expenses.filter(x => x.category === 'Food & Dining').reduce((s, x) => s + x.amount, 0);
+      document.getElementById('leaksBox').innerHTML = `
+        <div>• <b>Subscriptions:</b> $${subAmt.toFixed(2)}/mo ($${(subAmt*12).toFixed(0)}/year). Audit unused memberships.</div>
+        <div>• <b>Dining Out:</b> $${diningAmt.toFixed(2)} logged. Trimming 20% frees up <b>$${(diningAmt*0.2).toFixed(0)}/mo</b> for investments!</div>
+      `;
+
+      let recHtml = '', allHtml = '';
+      expenses.forEach((x, i) => {
+        const row = `<tr><td>${x.date.slice(5)}</td><td><b>${x.desc}</b></td><td>${x.category}</td><td style="font-weight:700;">$${x.amount.toFixed(2)}</td><td><button onclick="deleteItem(${x.id})" style="background:none;border:none;color:#ef4444;cursor:pointer;">✕</button></td></tr>`;
+        if (i < 5) recHtml += row;
+        allHtml += `<tr><td>${x.date}</td><td><b>${x.desc}</b></td><td>${x.category}</td><td><span class="badge badge-${x.type}">${x.type}</span></td><td style="font-weight:700;">$${x.amount.toFixed(2)}</td><td><button onclick="deleteItem(${x.id})" style="background:none;border:none;color:#ef4444;cursor:pointer;">✕</button></td></tr>`;
+      });
+      document.getElementById('recentList').innerHTML = recHtml;
+      document.getElementById('fullList').innerHTML = allHtml;
+      updateSim();
+    }
+
+    function updateSim() {
+      const pmt = parseFloat(document.getElementById('simSlider').value);
+      document.getElementById('sliderVal').textContent = '$' + pmt + '/mo';
+      const r = 0.08 / 12;
+      const fv = (y) => Math.round(pmt * ((Math.pow(1 + r, y * 12) - 1) / r));
+      document.getElementById('w10').textContent = '$' + fv(10).toLocaleString();
+      document.getElementById('w20').textContent = '$' + fv(20).toLocaleString();
+      document.getElementById('w30').textContent = '$' + fv(30).toLocaleString();
+    }
+
+    function promptSettings() {
+      const i = prompt("Monthly Take-Home Income ($):", income);
+      if (i) { income = parseFloat(i); saveData(); render(); }
+    }
+
+    function exportDataCSV() {
+      let csv = "Date,Description,Category,Type,Amount\n";
+      expenses.forEach(x => { csv += `"${x.date}","${x.desc}","${x.category}","${x.type}","${x.amount}"\n`; });
+      const a = document.createElement('a'); a.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+      a.download = 'expenses.csv'; a.click();
+    }
+
+    function showToast(m) {
+      const t = document.getElementById('toast'); t.textContent = m; t.style.display = 'block';
+      setTimeout(() => t.style.display = 'none', 2000);
+    }
+
+    render();
+  </script>
+</body>
+</html>
